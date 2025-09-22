@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useCallback, useRef } from "react"
+import type { Seat, Section, Stage, PricingTier, Tier, TheaterMap } from "@/types/theater"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -27,86 +28,7 @@ import {
   Moon,
 } from "lucide-react"
 
-// Types for the theater system
-interface Seat {
-  id: string
-  type: "seat"
-  label: string
-  x: number
-  y: number
-  z: number
-  sectionId: string
-  status: "available" | "selected" | "sold" | "blocked"
-  tier: string
-  pricingTier: string
-  viewAngle?: number
-  obstructed?: boolean
-}
-
-interface Section {
-  id: string
-  type: "curved-section" | "straight-section"
-  label: string
-  x: number
-  y: number
-  z: number
-  tier: string
-  seats: Seat[]
-  pricingTier: string
-  color?: string
-  // Curved section properties
-  startAngle?: number
-  endAngle?: number
-  innerRadius?: number
-  outerRadius?: number
-  // Straight section properties
-  width?: number
-  height?: number
-  rows?: number
-  seatsPerRow?: number
-}
-
-interface Stage {
-  id: string
-  type: "stage"
-  label: string
-  x: number
-  y: number
-  z: number
-  width: number
-  height: number
-  shape: "rectangle" | "arc" | "circle"
-  color: string
-}
-
-interface PricingTier {
-  id: string
-  name: string
-  price: number
-  color: string
-}
-
-interface Tier {
-  id: string
-  name: string
-  elevation: number
-  objects: (Section | Stage)[]
-}
-
-interface TheaterMap {
-  id: string
-  name: string
-  tiers: Tier[]
-  currentTier: number
-  pricingTiers: PricingTier[]
-  objects: (Section | Stage)[]
-  settings: {
-    perspective: number
-    cameraHeight: number
-    showGrid: boolean
-    show3D: boolean
-  }
-}
+// Types moved to @/types/theater
 
 type Tool = "select" | "move" | "curved-section" | "straight-section" | "stage" | "seat" | "view-from-seat"
 
@@ -174,10 +96,10 @@ function SeatMapBuilder() {
     pricingTier: "standard",
   })
 
-  const [newStage, setNewStage] = useState({
+  const [newStage, setNewStage] = useState<{ width: number; height: number; shape: Stage["shape"] }>({
     width: 200,
     height: 100,
-    shape: "rectangle" as const,
+    shape: "rectangle",
   })
 
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -655,13 +577,10 @@ function SeatMapBuilder() {
           ref={canvasRef}
           className="absolute inset-0 pt-16 overflow-hidden cursor-grab active:cursor-grabbing"
           style={{
-            background: isDarkMode
-              ? "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)"
-              : "linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%)",
-            backgroundImage: isDarkMode
-              ? "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0)"
-              : "radial-gradient(circle at 1px 1px, rgba(0,0,0,0.05) 1px, transparent 0)",
-            backgroundSize: "20px 20px",
+            backgroundColor: "hsl(var(--background))",
+            backgroundImage:
+              "linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(0,0,0,0.25) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.25) 1px, transparent 1px)",
+            backgroundSize: "20px 20px, 20px 20px, 100px 100px, 100px 100px",
           }}
           onMouseDown={handleCanvasMouseDown}
           onMouseMove={handleCanvasMouseMove}
@@ -748,9 +667,8 @@ function SeatMapBuilder() {
 
       {/* Right Sidebar */}
       <div
-        className={`fixed right-0 top-0 h-full bg-card border-l border-border transition-all duration-300 z-20 ${
-          sidebarCollapsed ? "w-12" : "w-80"
-        }`}
+        className={`fixed right-0 top-0 h-full bg-card border-l border-border transition-all duration-300 z-20 ${sidebarCollapsed ? "w-12" : "w-80"
+          }`}
       >
         {/* Sidebar Toggle */}
         <Button

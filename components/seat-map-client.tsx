@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState, useCallback } from "react"
+import type { Seat, Section, Stage, PricingTier, Tier, TheaterMap, CartItem, CustomerInfo } from "@/types/theater"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,97 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { ShoppingCart, Eye, X, CreditCard } from "lucide-react"
 
-interface Seat {
-  id: string
-  type: "seat"
-  label: string
-  x: number
-  y: number
-  z: number
-  sectionId: string
-  status: "available" | "selected" | "sold" | "blocked" | "reserved"
-  tier: string
-  pricingTier: string
-  viewAngle?: number
-  obstructed?: boolean
-  row?: string
-  number?: string
-}
-
-interface Section {
-  id: string
-  type: "curved-section" | "straight-section"
-  label: string
-  x: number
-  y: number
-  z: number
-  tier: string
-  seats: Seat[]
-  pricingTier: string
-  color?: string
-  startAngle?: number
-  endAngle?: number
-  innerRadius?: number
-  outerRadius?: number
-  width?: number
-  height?: number
-  rows?: number
-  seatsPerRow?: number
-}
-
-interface Stage {
-  id: string
-  type: "stage"
-  label: string
-  x: number
-  y: number
-  z: number
-  width: number
-  height: number
-  color: string
-  shape: "rectangle" | "circle" | "arc"
-}
-
-interface PricingTier {
-  id: string
-  name: string
-  price: number
-  color: string
-}
-
-interface Tier {
-  id: string
-  name: string
-  elevation: number
-  objects: (Section | Stage)[]
-}
-
-interface TheaterMap {
-  id: string
-  name: string
-  tiers: Tier[]
-  currentTier: number
-  pricingTiers: PricingTier[]
-  objects: (Section | Stage)[]
-  settings: {
-    perspective: number
-    cameraHeight: number
-    showGrid: boolean
-    show3D: boolean
-  }
-}
-
-interface CartItem {
-  seat: Seat
-  section: Section
-  pricingTier: PricingTier
-}
-
-interface CustomerInfo {
-  name: string
-  email: string
-  phone: string
-}
+// Types moved to @/types/theater
 
 function SeatMapClient() {
   const [theaterMap, setTheaterMap] = useState<TheaterMap>({
@@ -127,6 +38,7 @@ function SeatMapClient() {
             height: 200,
             rows: 8,
             seatsPerRow: 12,
+            group: 1,
             seats: Array.from({ length: 96 }, (_, i) => {
               const row = Math.floor(i / 12) + 1
               const seatNum = (i % 12) + 1
@@ -167,6 +79,7 @@ function SeatMapClient() {
             height: 150,
             rows: 6,
             seatsPerRow: 10,
+            group: 2,
             seats: Array.from({ length: 60 }, (_, i) => {
               const row = Math.floor(i / 10) + 1
               const seatNum = (i % 10) + 1
@@ -210,6 +123,7 @@ function SeatMapClient() {
             tier: "balcon",
             pricingTier: "balcony",
             color: "#f59e0b",
+            group: 3,
             startAngle: -60,
             endAngle: 60,
             innerRadius: 150,
@@ -268,6 +182,7 @@ function SeatMapClient() {
     seat: Seat
     position: { x: number; y: number }
   } | null>(null)
+  const [activeGroup, setActiveGroup] = useState<number>(1)
   const [viewFromSeat, setViewFromSeat] = useState<string | null>(null)
   const [showCheckout, setShowCheckout] = useState(false)
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
@@ -372,7 +287,6 @@ function SeatMapClient() {
           onClick={(e) => handleSeatClick(seat.id, e)}
         >
           <div className="w-3 h-3 rounded-sm border border-gray-300" style={{ backgroundColor: statusColor }} />
-          <div className="text-xs text-center mt-1 text-foreground font-medium">{seat.label}</div>
         </div>
       )
     },
@@ -564,13 +478,13 @@ function SeatMapClient() {
       {/* Main content */}
       <div className="flex-1 relative overflow-hidden">
         <div
-          className="w-full h-full relative bg-gradient-to-b from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900"
+          className="w-full h-full relative"
           style={{
-            backgroundImage: `
-              radial-gradient(circle at 25px 25px, rgba(0,0,0,0.1) 1px, transparent 1px),
-              radial-gradient(circle at 75px 75px, rgba(0,0,0,0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: "100px 100px",
+            // Strong grid background
+            backgroundColor: "hsl(var(--background))",
+            backgroundImage:
+              "linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(0,0,0,0.25) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.25) 1px, transparent 1px)",
+            backgroundSize: "20px 20px, 20px 20px, 100px 100px, 100px 100px",
             transform: `scale(${zoom}) translate(${panOffset.x}px, ${panOffset.y}px)`,
             transformOrigin: "center center",
           }}
@@ -579,6 +493,7 @@ function SeatMapClient() {
           {/* Render current tier objects */}
           {getCurrentTierObjects().map((obj) => {
             if (obj.type === "curved-section" || obj.type === "straight-section") {
+              if (obj.group && obj.group !== activeGroup) return null
               return <div key={obj.id}>{obj.seats.map(renderSeat)}</div>
             }
             if (obj.type === "stage") {
@@ -607,6 +522,21 @@ function SeatMapClient() {
             -
           </Button>
           <div className="text-xs text-center text-muted-foreground">{Math.round(zoom * 100)}%</div>
+        </div>
+
+        {/* Section group switcher 1-5 */}
+        <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-card/90 border rounded-lg p-2">
+          {[1, 2, 3, 4, 5].map((g) => (
+            <Button
+              key={g}
+              variant={activeGroup === g ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveGroup(g)}
+              className="w-8 h-8 p-0"
+            >
+              {g}
+            </Button>
+          ))}
         </div>
 
         {selectedSeatCard && (
