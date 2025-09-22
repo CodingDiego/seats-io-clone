@@ -7,9 +7,8 @@ import { Suspense } from "react"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "SeatMapBuilder - Fanz",
+  title: "SeatMapBuilder",
   description: "Visual editor for creating seat maps with rows and seats",
-  generator: "v0.app",
 }
 
 export default function RootLayout({
