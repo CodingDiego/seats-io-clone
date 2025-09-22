@@ -1,0 +1,232 @@
+{
+  "id": "teatro-nacional",
+  "name": "Teatro Nacional",
+  "tiers": [
+    {
+      "id": "platea",
+      "name": "Platea",
+      "elevation": 0,
+      "objects": [
+        {
+          "id": "curved-section-1",
+          "type": "curved-section",
+          "label": "Sección Central",
+          "x": 400,
+          "y": 300,
+          "z": 0,
+          "tier": "platea",
+          "startAngle": -45,
+          "endAngle": 45,
+          "innerRadius": 120,
+          "outerRadius": 220,
+          "pricingTier": "premium",
+          "color": "#ef4444",
+          "seats": [
+            {
+              "id": "seat-1-0-0",
+              "type": "seat",
+              "label": "A1",
+              "x": 485,
+              "y": 215,
+              "z": 0,
+              "sectionId": "curved-section-1",
+              "status": "available",
+              "tier": "platea",
+              "pricingTier": "premium",
+              "viewAngle": 135
+            },
+            {
+              "id": "seat-1-0-1",
+              "type": "seat",
+              "label": "A2",
+              "x": 490,
+              "y": 220,
+              "z": 0,
+              "sectionId": "curved-section-1",
+              "status": "available",
+              "tier": "platea",
+              "pricingTier": "premium",
+              "viewAngle": 140
+            },
+            {
+              "id": "seat-1-0-2",
+              "type": "seat",
+              "label": "A3",
+              "x": 495,
+              "y": 225,
+              "z": 0,
+              "sectionId": "curved-section-1",
+              "status": "sold",
+              "tier": "platea",
+              "pricingTier": "premium",
+              "viewAngle": 145
+            }
+          ]
+        },
+        {
+          "id": "straight-section-1",
+          "type": "straight-section",
+          "label": "Sección Lateral Izquierda",
+          "x": 100,
+          "y": 200,
+          "z": 0,
+          "tier": "platea",
+          "width": 350,
+          "height": 120,
+          "rows": 3,
+          "seatsPerRow": 10,
+          "pricingTier": "standard",
+          "color": "#3b82f6",
+          "seats": [
+            {
+              "id": "seat-2-0-0",
+              "type": "seat",
+              "label": "L1",
+              "x": 100,
+              "y": 200,
+              "z": 0,
+              "sectionId": "straight-section-1",
+              "status": "available",
+              "tier": "platea",
+              "pricingTier": "standard",
+              "viewAngle": 45
+            },
+            {
+              "id": "seat-2-0-1",
+              "type": "seat",
+              "label": "L2",
+              "x": 135,
+              "y": 200,
+              "z": 0,
+              "sectionId": "straight-section-1",
+              "status": "selected",
+              "tier": "platea",
+              "pricingTier": "standard",
+              "viewAngle": 45
+            }
+          ]
+        },
+        {
+          "id": "stage-1",
+          "type": "stage",
+          "label": "Escenario Principal",
+          "x": 300,
+          "y": 100,
+          "z": 0,
+          "width": 200,
+          "height": 80,
+          "shape": "rectangle",
+          "color": "#1f2937"
+        }
+      ]
+    },
+    {
+      "id": "palcos",
+      "name": "Palcos",
+      "elevation": 50,
+      "objects": [
+        {
+          "id": "curved-section-2",
+          "type": "curved-section",
+          "label": "Palcos Centrales",
+          "x": 400,
+          "y": 350,
+          "z": 50,
+          "tier": "palcos",
+          "startAngle": -60,
+          "endAngle": 60,
+          "innerRadius": 180,
+          "outerRadius": 240,
+          "pricingTier": "premium",
+          "color": "#ef4444",
+          "seats": [
+            {
+              "id": "seat-3-0-0",
+              "type": "seat",
+              "label": "P1",
+              "x": 490,
+              "y": 260,
+              "z": 50,
+              "sectionId": "curved-section-2",
+              "status": "available",
+              "tier": "palcos",
+              "pricingTier": "premium",
+              "viewAngle": 135
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "balcon",
+      "name": "Balcón",
+      "elevation": 100,
+      "objects": [
+        {
+          "id": "curved-section-3",
+          "type": "curved-section",
+          "label": "Balcón Superior",
+          "x": 400,
+          "y": 400,
+          "z": 100,
+          "tier": "balcon",
+          "startAngle": -75,
+          "endAngle": 75,
+          "innerRadius": 220,
+          "outerRadius": 300,
+          "pricingTier": "balcony",
+          "color": "#f59e0b",
+          "seats": [
+            {
+              "id": "seat-4-0-0",
+              "type": "seat",
+              "label": "B1",
+              "x": 520,
+              "y": 280,
+              "z": 100,
+              "sectionId": "curved-section-3",
+              "status": "available",
+              "tier": "balcon",
+              "pricingTier": "balcony",
+              "viewAngle": 135
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "currentTier": 0,
+  "pricingTiers": [
+    {
+      "id": "premium",
+      "name": "Premium",
+      "price": 150,
+      "color": "#ef4444"
+    },
+    {
+      "id": "standard",
+      "name": "Estándar",
+      "price": 100,
+      "color": "#3b82f6"
+    },
+    {
+      "id": "economy",
+      "name": "Económico",
+      "price": 50,
+      "color": "#10b981"
+    },
+    {
+      "id": "balcony",
+      "name": "Balcón",
+      "price": 75,
+      "color": "#f59e0b"
+    }
+  ],
+  "objects": [],
+  "settings": {
+    "perspective": 45,
+    "cameraHeight": 200,
+    "showGrid": true,
+    "show3D": true
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "name": "Teatro Ejemplo",
+  "objects": [
+    {
+      "id": "stage-1",
+      "type": "stage",
+      "label": "Escenario Principal",
+      "x": 600,
+      "y": 800,
+      "z": 0,
+      "width": 300,
+      "height": 120,
+      "shape": "rectangle",
+      "color": "#1f2937"
+    },
+    {
+      "id": "curved-section-1",
+      "type": "curved-section",
+      "label": "Platea Central",
+      "x": 750,
+      "y": 600,
+      "z": 0,
+      "tier": 0,
+      "startAngle": -60,
+      "endAngle": 60,
+      "innerRadius": 200,
+      "outerRadius": 400,
+      "rows": 6,
+      "seatsPerRow": [16, 18, 20, 22, 24, 26],
+      "seatSpacing": 35,
+      "rowSpacing": 40,
+      "curvature": 0.8,
+      "pricingTier": "premium",
+      "color": "#f97316",
+      "seats": [
+        {
+          "id": "seat-1-0-0",
+          "type": "seat",
+          "label": "A1",
+          "x": 650,
+          "y": 500,
+          "z": 0,
+          "sectionId": "curved-section-1",
+          "status": "available",
+          "tier": 0,
+          "pricingTier": "premium"
+        }
+      ]
+    },
+    {
+      "id": "row-1",
+      "type": "straight-section",
+      "label": "Fila VIP",
+      "x": 500,
+      "y": 400,
+      "z": 0,
+      "tier": 0,
+      "width": 350,
+      "height": 30,
+      "rows": 1,
+      "seatsPerRow": 10,
+      "pricingTier": "vip",
+      "color": "#ef4444",
+      "seats": [
+        {
+          "id": "seat-vip-1",
+          "type": "seat",
+          "label": "VIP1",
+          "x": 500,
+          "y": 400,
+          "z": 0,
+          "sectionId": "row-1",
+          "status": "available",
+          "tier": 0,
+          "pricingTier": "vip"
+        },
+        {
+          "id": "seat-vip-2",
+          "type": "seat",
+          "label": "VIP2",
+          "x": 535,
+          "y": 400,
+          "z": 0,
+          "sectionId": "row-1",
+          "status": "available",
+          "tier": 0,
+          "pricingTier": "vip"
+        }
+      ]
+    }
+  ],
+  "tiers": [
+    {
+      "id": "tier-1",
+      "name": "Platea",
+      "level": 0,
+      "elevation": 0,
+      "visible": true,
+      "objects": []
+    },
+    {
+      "id": "tier-2",
+      "name": "Palcos",
+      "level": 1,
+      "elevation": 100,
+      "visible": true,
+      "objects": []
+    },
+    {
+      "id": "tier-3",
+      "name": "Balcón",
+      "level": 2,
+      "elevation": 200,
+      "visible": true,
+      "objects": []
+    }
+  ],
+  "currentTier": 0,
+  "pricingTiers": [
+    {
+      "id": "vip",
+      "name": "VIP",
+      "color": "#ef4444",
+      "price": 150
+    },
+    {
+      "id": "premium",
+      "name": "Premium",
+      "color": "#f97316",
+      "price": 100
+    },
+    {
+      "id": "standard",
+      "name": "Standard",
+      "color": "#22c55e",
+      "price": 75
+    },
+    {
+      "id": "economy",
+      "name": "Economy",
+      "color": "#3b82f6",
+      "price": 50
+    }
+  ],
+  "settings": {
+    "gridSize": 20,
+    "snapToGrid": true,
+    "showGrid": false,
+    "view3D": true,
+    "isometricAngle": 30
+  }
+}

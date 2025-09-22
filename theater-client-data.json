@@ -1,0 +1,209 @@
+{
+  "theater": {
+    "id": "teatro-principal",
+    "name": "Teatro Principal",
+    "description": "El teatro más prestigioso de la ciudad",
+    "capacity": 1200,
+    "tiers": [
+      {
+        "id": "platea",
+        "name": "Platea",
+        "elevation": 0,
+        "sections": [
+          {
+            "id": "platea-a",
+            "name": "Sección A",
+            "type": "straight",
+            "rows": 15,
+            "seatsPerRow": 20,
+            "pricingTier": "premium",
+            "reservedSeats": [
+              "A5",
+              "A6",
+              "A7",
+              "B12",
+              "B13",
+              "C8",
+              "C9",
+              "C10",
+              "C11",
+              "F15",
+              "F16",
+              "F17",
+              "F18",
+              "H3",
+              "H4",
+              "J10",
+              "J11",
+              "J12",
+              "L7",
+              "L8",
+              "L9",
+              "N14",
+              "N15",
+              "N16"
+            ]
+          },
+          {
+            "id": "platea-b",
+            "name": "Sección B",
+            "type": "straight",
+            "rows": 12,
+            "seatsPerRow": 18,
+            "pricingTier": "standard",
+            "reservedSeats": [
+              "A9",
+              "A10",
+              "C5",
+              "C6",
+              "C7",
+              "E12",
+              "E13",
+              "E14",
+              "G2",
+              "G3",
+              "G4",
+              "I8",
+              "I9",
+              "K15",
+              "K16",
+              "K17"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "palcos",
+        "name": "Palcos",
+        "elevation": 50,
+        "sections": [
+          {
+            "id": "palco-1",
+            "name": "Palco Izquierdo",
+            "type": "box",
+            "rows": 2,
+            "seatsPerRow": 4,
+            "pricingTier": "vip",
+            "reservedSeats": ["A1", "A2", "B3", "B4"]
+          },
+          {
+            "id": "palco-2",
+            "name": "Palco Central",
+            "type": "box",
+            "rows": 2,
+            "seatsPerRow": 6,
+            "pricingTier": "vip",
+            "reservedSeats": ["A3", "A4", "B1", "B2"]
+          },
+          {
+            "id": "palco-3",
+            "name": "Palco Derecho",
+            "type": "box",
+            "rows": 2,
+            "seatsPerRow": 4,
+            "pricingTier": "vip",
+            "reservedSeats": ["A2", "A3", "B1", "B4"]
+          }
+        ]
+      },
+      {
+        "id": "balcon",
+        "name": "Balcón",
+        "elevation": 100,
+        "sections": [
+          {
+            "id": "balcon-central",
+            "name": "Balcón Central",
+            "type": "curved",
+            "rows": 8,
+            "seatsPerRow": 25,
+            "pricingTier": "balcony",
+            "reservedSeats": [
+              "A12",
+              "A13",
+              "A14",
+              "C8",
+              "C9",
+              "C10",
+              "C11",
+              "E15",
+              "E16",
+              "E17",
+              "G5",
+              "G6",
+              "G7",
+              "G8",
+              "H20",
+              "H21",
+              "H22"
+            ]
+          }
+        ]
+      }
+    ],
+    "pricingTiers": [
+      {
+        "id": "vip",
+        "name": "VIP",
+        "price": 250,
+        "color": "#8b5cf6",
+        "description": "Palcos exclusivos con servicio premium"
+      },
+      {
+        "id": "premium",
+        "name": "Premium",
+        "price": 150,
+        "color": "#ef4444",
+        "description": "Mejores asientos de platea"
+      },
+      {
+        "id": "standard",
+        "name": "Estándar",
+        "price": 100,
+        "color": "#3b82f6",
+        "description": "Asientos de platea estándar"
+      },
+      {
+        "id": "balcony",
+        "name": "Balcón",
+        "price": 75,
+        "color": "#f59e0b",
+        "description": "Vista elevada del escenario"
+      },
+      {
+        "id": "economy",
+        "name": "Económico",
+        "price": 50,
+        "color": "#10b981",
+        "description": "Asientos económicos"
+      }
+    ]
+  },
+  "events": [
+    {
+      "id": "event-1",
+      "title": "Romeo y Julieta",
+      "date": "2024-03-15",
+      "time": "20:00",
+      "duration": "2h 30min",
+      "description": "La clásica obra de Shakespeare",
+      "image": "/placeholder.svg?height=300&width=400"
+    }
+  ],
+  "reservations": {
+    "sessionId": "session-123",
+    "expiresAt": "2024-03-10T15:30:00Z",
+    "reservedSeats": [
+      {
+        "seatId": "platea-a-A5",
+        "reservedBy": "user-456",
+        "reservedAt": "2024-03-10T15:00:00Z"
+      },
+      {
+        "seatId": "platea-a-A6",
+        "reservedBy": "user-456",
+        "reservedAt": "2024-03-10T15:00:00Z"
+      }
+    ]
+  }
+}
