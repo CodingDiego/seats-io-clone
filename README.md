@@ -1,30 +1,10 @@
-# Seats.io clone
+SETUP E IA-RELATED INFO: Lo bootstrapee con v0, tuve que hacer varias actualziaciones
+porque ahora por algun motivo genera codigo en nextjs 15 y react 18. Después fui 
+"refinando" las funcionalidades por ahi hasta que me quedé sin créditos y seguí
+dicho proceso con Cursor. (Nunca vi un archivo de prompts.json pero voy a 
+compartirte el chat de v0 obviamente)
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+El esquema del diseñador no fue ni es mucho, considero personalmente que se puede 
+conseguir quizás un mejor resultado a la hora de generar las formas con un json más especifico
+(osease más detallado -> grande).
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/diegomcmuffins-projects/v0-seats-io-clone)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/Yp9KWnGUIBF)
-
-## Overview
-
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
-
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/diegomcmuffins-projects/v0-seats-io-clone](https://vercel.com/diegomcmuffins-projects/v0-seats-io-clone)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.app/chat/projects/Yp9KWnGUIBF](https://v0.app/chat/projects/Yp9KWnGUIBF)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
