@@ -84,6 +84,8 @@ function SeatMapBuilder() {
   const [stageDialog, setStageDialog] = useState(false)
   const [jsonEditorOpen, setJsonEditorOpen] = useState(false)
   const [jsonText, setJsonText] = useState<string>("")
+  const [exportDialogOpen, setExportDialogOpen] = useState(false)
+  const [exportName, setExportName] = useState<string>("")
 
   // Form states for new elements
   const [newCurvedSection, setNewCurvedSection] = useState({
@@ -543,7 +545,20 @@ function SeatMapBuilder() {
       reader.onload = (e) => {
         try {
           const data = JSON.parse(e.target?.result as string)
-          setTheaterMap(data)
+          const valid =
+            typeof data === "object" &&
+            data &&
+            typeof data.id === "string" &&
+            typeof data.name === "string" &&
+            Array.isArray(data.tiers) &&
+            typeof data.currentTier === "number" &&
+            Array.isArray(data.pricingTiers) &&
+            Array.isArray(data.objects) &&
+            typeof data.settings === "object"
+          if (!valid) {
+            throw new Error("JSON no cumple con el esquema mínimo")
+          }
+          setTheaterMap(data as TheaterMap)
           setJsonText(JSON.stringify(data, null, 2))
         } catch (error) {
           console.error("Error importing theater map:", error)
@@ -593,6 +608,39 @@ function SeatMapBuilder() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const empty: TheaterMap = {
+                    id: `theater-${Date.now()}`,
+                    name: "Nuevo mapa",
+                    tiers: [
+                      { id: "platea", name: "Platea", elevation: 0, objects: [] },
+                      { id: "palcos", name: "Palcos", elevation: 50, objects: [] },
+                      { id: "balcon", name: "Balcón", elevation: 100, objects: [] },
+                    ],
+                    currentTier: 0,
+                    pricingTiers: [
+                      { id: "premium", name: "Premium", price: 150, color: "#ef4444" },
+                      { id: "standard", name: "Estándar", price: 100, color: "#3b82f6" },
+                      { id: "economy", name: "Económico", price: 50, color: "#10b981" },
+                      { id: "balcony", name: "Balcón", price: 75, color: "#f59e0b" },
+                    ],
+                    objects: [],
+                    settings: { perspective: 45, cameraHeight: 200, showGrid: true, show3D: true },
+                  }
+                  setTheaterMap(empty)
+                  setSelectedSeats([])
+                  setSelectedSeatDetails(null)
+                  setViewFromSeat(null)
+                  setPanOffset({ x: 0, y: 0 })
+                  setZoom(1)
+                }}
+                title="Nuevo mapa"
+              >
+                Nuevo mapa
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -648,7 +696,14 @@ function SeatMapBuilder() {
                 <Upload className="h-4 w-4 mr-2" />
                 Importar
               </Button>
-              <Button variant="outline" size="sm" onClick={handleExport}>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setExportName(theaterMap.name || "Mapa")
+                  setExportDialogOpen(true)
+                }}
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Exportar
               </Button>
@@ -685,6 +740,43 @@ function SeatMapBuilder() {
             </Button>
           </div>
         </div>
+
+        {/* Export Name Dialog */}
+        <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Nombre del mapa</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3">
+              <Label>Nombre</Label>
+              <Input value={exportName} onChange={(e) => setExportName(e.target.value)} placeholder="Mi mapa" />
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const namedMap = { ...theaterMap, name: exportName || theaterMap.name }
+                    const dataStr = JSON.stringify(namedMap, null, 2)
+                    setJsonText(dataStr)
+                    const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr)
+                    const exportFileDefaultName = `${(exportName || theaterMap.name || "mapa")
+                      .replace(/\s+/g, "-")
+                      .toLowerCase()}.json`
+                    const linkElement = document.createElement("a")
+                    linkElement.setAttribute("href", dataUri)
+                    linkElement.setAttribute("download", exportFileDefaultName)
+                    linkElement.click()
+                    setExportDialogOpen(false)
+                  }}
+                >
+                  Exportar
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Canvas */}
         <div
