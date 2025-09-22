@@ -27,6 +27,7 @@ import {
   Sun,
   Moon,
 } from "lucide-react"
+import { Dialog as JsonDialog, DialogContent as JsonDialogContent, DialogHeader as JsonDialogHeader, DialogTitle as JsonDialogTitle, DialogTrigger as JsonDialogTrigger } from "@/components/ui/dialog"
 
 // Types moved to @/types/theater
 
@@ -72,11 +73,17 @@ function SeatMapBuilder() {
   const [lastPanPoint, setLastPanPoint] = useState({ x: 0, y: 0 })
   const [isSelecting, setIsSelecting] = useState(false)
   const [selectionBox, setSelectionBox] = useState({ x: 0, y: 0, width: 0, height: 0 })
+  const [isDraggingSeats, setIsDraggingSeats] = useState(false)
+  const seatsDragRef = useRef<{ startX: number; startY: number; originals: Map<string, { x: number; y: number }> } | null>(
+    null,
+  )
 
   // Dialog states
   const [curvedSectionDialog, setCurvedSectionDialog] = useState(false)
   const [straightSectionDialog, setStraightSectionDialog] = useState(false)
   const [stageDialog, setStageDialog] = useState(false)
+  const [jsonEditorOpen, setJsonEditorOpen] = useState(false)
+  const [jsonText, setJsonText] = useState<string>("")
 
   // Form states for new elements
   const [newCurvedSection, setNewCurvedSection] = useState({
@@ -117,8 +124,12 @@ function SeatMapBuilder() {
       const rect = canvasRef.current?.getBoundingClientRect()
       if (!rect) return
 
+      // Account for canvas padding (e.g., pt-16)
+      const paddingTopPx = canvasRef.current
+        ? Number.parseFloat(getComputedStyle(canvasRef.current).paddingTop || "0")
+        : 0
       const x = (e.clientX - rect.left - panOffset.x) / zoom
-      const y = (e.clientY - rect.top - panOffset.y) / zoom
+      const y = (e.clientY - rect.top - paddingTopPx - panOffset.y) / zoom
 
       if (tool === "move" || e.button === 1) {
         setIsPanning(true)
@@ -136,6 +147,37 @@ function SeatMapBuilder() {
 
   const handleCanvasMouseMove = useCallback(
     (e: React.MouseEvent) => {
+      if (isDraggingSeats && seatsDragRef.current) {
+        const { startX, startY, originals } = seatsDragRef.current
+        const dx = (e.clientX - startX) / zoom
+        const dy = (e.clientY - startY) / zoom
+        setTheaterMap((prev) => {
+          const tierIdx = prev.currentTier
+          const updatedTiers = prev.tiers.map((tier, idx) => {
+            if (idx !== tierIdx) return tier
+            return {
+              ...tier,
+              objects: tier.objects.map((obj) => {
+                if (obj.type === "curved-section" || obj.type === "straight-section") {
+                  return {
+                    ...obj,
+                    seats: obj.seats.map((s) => {
+                      if (originals.has(s.id)) {
+                        const orig = originals.get(s.id)!
+                        return { ...s, x: orig.x + dx, y: orig.y + dy }
+                      }
+                      return s
+                    }),
+                  }
+                }
+                return obj
+              }),
+            }
+          })
+          return { ...prev, tiers: updatedTiers }
+        })
+        return
+      }
       if (isPanning) {
         const deltaX = e.clientX - lastPanPoint.x
         const deltaY = e.clientY - lastPanPoint.y
@@ -148,8 +190,11 @@ function SeatMapBuilder() {
         const rect = canvasRef.current?.getBoundingClientRect()
         if (!rect) return
 
+        const paddingTopPx = canvasRef.current
+          ? Number.parseFloat(getComputedStyle(canvasRef.current).paddingTop || "0")
+          : 0
         const currentX = (e.clientX - rect.left - panOffset.x) / zoom
-        const currentY = (e.clientY - rect.top - panOffset.y) / zoom
+        const currentY = (e.clientY - rect.top - paddingTopPx - panOffset.y) / zoom
 
         setSelectionBox((prev) => ({
           ...prev,
@@ -163,6 +208,10 @@ function SeatMapBuilder() {
 
   const handleCanvasMouseUp = useCallback(() => {
     setIsPanning(false)
+    if (isDraggingSeats) {
+      setIsDraggingSeats(false)
+      seatsDragRef.current = null
+    }
     if (isSelecting) {
       // Handle multi-selection
       const currentTier = theaterMap.tiers[theaterMap.currentTier]
@@ -419,6 +468,27 @@ function SeatMapBuilder() {
             transform: `scale(${perspectiveScale})`,
             zIndex: Math.floor(seat.z + seat.y),
           }}
+          onMouseDown={(e) => {
+            // Start dragging - determine group to move
+            e.stopPropagation()
+            const isPartOfGroup = selectedSeats.includes(seat.id)
+            const seatIdsToMove = new Set<string>(isPartOfGroup ? selectedSeats : [seat.id])
+            // If not part of group, set selection to just this seat for drag-then-drop
+            if (!isPartOfGroup) {
+              setSelectedSeats([seat.id])
+            }
+            seatsDragRef.current = {
+              startX: e.clientX,
+              startY: e.clientY,
+              originals: new Map(
+                getCurrentTierObjects()
+                  .flatMap((obj) => (obj.type === "curved-section" || obj.type === "straight-section" ? obj.seats : []))
+                  .filter((s) => seatIdsToMove.has(s.id))
+                  .map((s) => [s.id, { x: s.x, y: s.y }] as const),
+              ),
+            }
+            setIsDraggingSeats(true)
+          }}
           onClick={(e) => handleSeatClick(seat.id, e)}
           title={`${seat.label} - ${pricingTier?.name} ($${pricingTier?.price})`}
         >
@@ -474,6 +544,7 @@ function SeatMapBuilder() {
         try {
           const data = JSON.parse(e.target?.result as string)
           setTheaterMap(data)
+          setJsonText(JSON.stringify(data, null, 2))
         } catch (error) {
           console.error("Error importing theater map:", error)
         }
@@ -484,6 +555,7 @@ function SeatMapBuilder() {
 
   const handleExport = useCallback(() => {
     const dataStr = JSON.stringify(theaterMap, null, 2)
+    setJsonText(dataStr)
     const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr)
     const exportFileDefaultName = `${theaterMap.name.replace(/\s+/g, "-").toLowerCase()}.json`
 
@@ -528,6 +600,48 @@ function SeatMapBuilder() {
                 title={isDarkMode ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
               >
                 {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              <JsonDialog open={jsonEditorOpen} onOpenChange={setJsonEditorOpen}>
+                <JsonDialogTrigger asChild>
+                  <Button variant="outline" size="sm">Editar JSON</Button>
+                </JsonDialogTrigger>
+                <JsonDialogContent className="max-w-3xl">
+                  <JsonDialogHeader>
+                    <JsonDialogTitle>Editar datos del teatro (JSON)</JsonDialogTitle>
+                  </JsonDialogHeader>
+                  <div className="grid gap-3">
+                    <textarea
+                      value={jsonText}
+                      onChange={(e) => setJsonText(e.target.value)}
+                      className="w-full h-[400px] font-mono text-sm p-3 border rounded bg-background"
+                    />
+                    <div className="flex justify-end gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setJsonEditorOpen(false)}>Cancelar</Button>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          try {
+                            const parsed = JSON.parse(jsonText)
+                            setTheaterMap(parsed)
+                            setJsonEditorOpen(false)
+                          } catch (err) {
+                            console.error("JSON inválido", err)
+                          }
+                        }}
+                      >
+                        Guardar
+                      </Button>
+                    </div>
+                  </div>
+                </JsonDialogContent>
+              </JsonDialog>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => (window.location.href = "/client")}
+                title="Ver vista cliente"
+              >
+                Ir a Cliente
               </Button>
               <input type="file" accept=".json" onChange={handleImport} className="hidden" id="import-file" />
               <Button variant="outline" size="sm" onClick={() => document.getElementById("import-file")?.click()}>
@@ -579,7 +693,7 @@ function SeatMapBuilder() {
           style={{
             backgroundColor: "hsl(var(--background))",
             backgroundImage:
-              "linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(0,0,0,0.25) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.25) 1px, transparent 1px)",
+              `linear-gradient(to right, var(--grid-minor) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px), linear-gradient(to right, var(--grid-major) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px)`,
             backgroundSize: "20px 20px, 20px 20px, 100px 100px, 100px 100px",
           }}
           onMouseDown={handleCanvasMouseDown}
@@ -673,8 +787,8 @@ function SeatMapBuilder() {
         {/* Sidebar Toggle */}
         <Button
           variant="ghost"
-          size="sm"
-          className="absolute -left-6 top-4 bg-card border border-border rounded-l-md rounded-r-none"
+          size="icon"
+          className="absolute -left-2 top-3 bg-card/80 border border-border rounded-l-md rounded-r-none shadow-xs"
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
         >
           {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}

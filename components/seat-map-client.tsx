@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useRef } from "react"
 import type { Seat, Section, Stage, PricingTier, Tier, TheaterMap, CartItem, CustomerInfo } from "@/types/theater"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -196,6 +196,7 @@ function SeatMapClient() {
   // Canvas state
   const [zoom, setZoom] = useState(1)
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 })
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const getCurrentTierObjects = useCallback(() => {
     return theaterMap.tiers[theaterMap.currentTier]?.objects || []
@@ -220,10 +221,10 @@ function SeatMapClient() {
         return
       }
 
-      setSelectedSeatCard({
-        seat,
-        position: { x: e.clientX, y: e.clientY },
-      })
+      const containerRect = containerRef.current?.getBoundingClientRect()
+      const posX = containerRect ? e.clientX - containerRect.left : e.clientX
+      const posY = containerRect ? e.clientY - containerRect.top : e.clientY
+      setSelectedSeatCard({ seat, position: { x: posX, y: posY } })
     },
     [getAllSeats],
   )
@@ -476,14 +477,13 @@ function SeatMapClient() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 relative overflow-hidden">
+      <div ref={containerRef} className="flex-1 relative overflow-hidden">
         <div
           className="w-full h-full relative"
           style={{
-            // Strong grid background
             backgroundColor: "hsl(var(--background))",
             backgroundImage:
-              "linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to right, rgba(0,0,0,0.25) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.25) 1px, transparent 1px)",
+              `linear-gradient(to right, var(--grid-minor) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-minor) 1px, transparent 1px), linear-gradient(to right, var(--grid-major) 1px, transparent 1px), linear-gradient(to bottom, var(--grid-major) 1px, transparent 1px)`,
             backgroundSize: "20px 20px, 20px 20px, 100px 100px, 100px 100px",
             transform: `scale(${zoom}) translate(${panOffset.x}px, ${panOffset.y}px)`,
             transformOrigin: "center center",
@@ -543,8 +543,20 @@ function SeatMapClient() {
           <Card
             className="absolute z-50 w-80 shadow-lg border-2"
             style={{
-              left: Math.min(selectedSeatCard.position.x, window.innerWidth - 320),
-              top: Math.min(selectedSeatCard.position.y, window.innerHeight - 300),
+              left: Math.max(
+                8,
+                Math.min(
+                  selectedSeatCard.position.x,
+                  (containerRef.current?.clientWidth || window.innerWidth) - 320 - 8,
+                ),
+              ),
+              top: Math.max(
+                8,
+                Math.min(
+                  selectedSeatCard.position.y,
+                  (containerRef.current?.clientHeight || window.innerHeight) - 300 - 8,
+                ),
+              ),
             }}
           >
             <CardHeader className="pb-3">
