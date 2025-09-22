@@ -8,3 +8,5 @@ El esquema del diseñador no fue ni es mucho, considero personalmente que se pue
 conseguir quizás un mejor resultado a la hora de generar las formas con un json más especifico
 (osease más detallado -> grande).
 
+(Los json de dummy data son para ver cómo se verían con la vista o POV del cliente)
+
