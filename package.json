@@ -39,6 +39,7 @@
     "@radix-ui/react-tooltip": "1.1.6",
     "@vercel/analytics": "latest",
     "autoprefixer": "^10.4.21",
+    "babel-plugin-react-compiler": "19.1.0-rc.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.4",
